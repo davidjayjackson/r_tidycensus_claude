@@ -1,0 +1,55 @@
+---
+title: "Claude AI +  Tidycensus"
+format: html
+editor: visual
+---
+
+```{r}
+# Install if needed
+# install.packages("tidycensus")
+
+
+library(tidycensus)
+library(dplyr)
+library(ggplot2)
+
+# Set your key once (saves to ~/.Renviron)
+# census_api_key("PUT_API_KEY_HERE", install = TRUE)
+
+# --- Example 1: Population by state ---
+pop_by_state <- get_acs(
+  geography = "state",
+  variables = "B01003_001",   # Total population
+  year = 2023,
+  survey = "acs1"
+)
+
+# --- Example 2: Median income + poverty rate by county ---
+income_poverty <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c(
+    median_income = "B19013_001",
+    poverty_rate  = "B17001_002"
+  ),
+  year = 2023,
+  survey = "acs5"
+)
+
+# --- Example 3: Pull with geometry for mapping ---
+
+income_map <- get_acs(
+  geography = "county",
+  variables = "B19013_001",
+  state = "TX",
+  year = 2023,
+  geometry = TRUE   # includes sf geometry for mapping
+)
+
+ggplot(income_map) +
+  geom_sf(aes(fill = estimate)) +
+  scale_fill_viridis_c(labels = scales::dollar) +
+  labs(title = "Median Household Income by County, Texas (2023)",
+       fill = "Median Income") +
+  theme_minimal()
+```
